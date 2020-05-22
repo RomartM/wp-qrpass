@@ -1,0 +1,17 @@
+span.caldera-forms-summary-value {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+span.caldera-forms-summary-label::after {
+    content: ":";
+}
+
+span.caldera-forms-summary-value:empty::after {
+    content: "N/A";
+}
+
+span.caldera-forms-summary-label {
+    text-transform: capitalize;
+    font-size: 14px;
+}
