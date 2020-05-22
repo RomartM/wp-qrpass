@@ -1,0 +1,50 @@
+#qrp-dialog {
+    min-width: 300px;
+}
+
+.ui-dialog {
+    height: auto !important;
+}
+
+.qrp_view {
+    min-width: 500px;
+}
+
+.qrp-spinner {
+    /* the actual path is ../images/spinner.gif */
+    background: url('../img/spinner.gif') no-repeat;
+    -webkit-background-size: 20px 20px;
+    background-size: 20px 20px;
+    opacity: 0.7;
+    filter: alpha(opacity=70);
+    width: 20px;
+    height: 20px;
+    margin: auto;
+}
+
+.qrp-center  {
+    text-align: center;
+}
+
+/* Table Styles */
+
+td.status.column-status {
+    text-transform: uppercase;
+}
+
+td.status.column-status::after {
+    content: "D";
+}
+
+td.status.column-status:empty {
+    font-size: 0;
+}
+
+.qrp-table-no-items {
+    padding: 60px;
+    text-align: center;
+}
+
+.row-actions> span {
+    float: left;
+}

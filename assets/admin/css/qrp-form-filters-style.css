@@ -1,0 +1,44 @@
+.ui-dialog {
+    height: auto !important;
+}
+
+.qrp-spinner {
+    /* the actual path is ../images/spinner.gif */
+    background: url('../img/spinner.gif') no-repeat;
+    -webkit-background-size: 20px 20px;
+    background-size: 20px 20px;
+    opacity: 0.7;
+    filter: alpha(opacity=70);
+    width: 20px;
+    height: 20px;
+    margin: auto;
+}
+
+.qrp-center  {
+    text-align: center;
+}
+
+.qrp-condition-item-wrapper::before {
+    content: attr(data-relation);
+    text-transform: uppercase;
+    float: left;
+    height: 100%;
+    position: absolute;
+    text-align: center;
+    background-color: #0071a1;
+    color: white;
+    width: 35px;
+}
+
+.qrp-condition-item-wrapper {
+    position: relative;
+    margin: 2px;
+}
+
+.qrp-condition-item {
+    margin-left: 40px;
+}
+
+.qrp_process_view .success h2 {
+    text-transform: capitalize;
+}
