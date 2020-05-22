@@ -33,10 +33,10 @@ function qrp_init(){
     include 'classes/core/QRPActivityCollector.php';
     include 'classes/core/QRPEntriesManager.php';
     include 'classes/views/QRPEntriesTable.php';
-    include 'views/entries-manager.php';
-    include 'views/image-resource.php';
     include 'overrides/caldera-hooks.php';
-
+    include 'views/entries-manager.php';
+    include 'views/validate.php';
+    include 'views/image-resource.php';
 }
 
 add_action('plugins_loaded', 'qrp_init');

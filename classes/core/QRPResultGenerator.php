@@ -88,7 +88,7 @@ class QRPResultGenerator
                 $url = $qr_gen->getResourceURL();
                 $image = file_get_contents($url);
                 $html .= "<div class=\"qrpass-container\" style=\"font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,sans-serif;background-color:#fff;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-radius:15px;padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;max-width:600px;margin:10px auto;\">
-                <div class=\"container-title\" style=\"margin-bottom:15px;font-size:20px;\">Your QR Pass (Click to download)</div>
+                <div class=\"container-title\" style=\"margin-bottom:15px;font-size:20px;\">Your QR Pass</div>
                 <a title=\"Click to Download\" href=\"data:image/png;base64,".base64_encode($image)."\" download>
                 <img src=\"".$url."\" style=\"display:block!important;margin-left:auto!important;margin-right:auto!important;max-width:200px;\" id=\"qrpass\"/></a>
                 </div>";

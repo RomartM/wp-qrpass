@@ -59,14 +59,16 @@ class QRPHashValidator extends QRPCrypto
      * @return string
      */
     function getResponse(){
-        list($status, $data) = $this->decryptHash();
+        $hash = $this->decryptHash();
+        $status = $hash['status'];
+        $data = $hash['content'];
 
         if($status == 'success'){
-            if(empty(json_decode($data)->{'user-id'})){
+            if(empty($data)){
                 return $this->getResponseJSON(null, 401, "Pass not Valid");
             }else{
                 // Get User Information
-                $id_number = json_decode($data)->{'user-id'};
+                $id_number = $data;
                 $user_data = $this->data_table->getUserData($id_number);
 
                 $payload['user-id'] = strtoupper($id_number);
@@ -145,7 +147,7 @@ class QRPHashValidator extends QRPCrypto
      * @return string
      */
     protected function formatName($str){
-        return str_replace("Ñ", "ñ",mb_convert_encoding(ucwords(strtolower($str)), 'cp1252', 'utf-8'));
+        return str_replace("Ñ", "ñ", mb_convert_encoding(ucwords(strtolower($str)), 'cp1252', 'utf-8'));
     }
 
     /**
