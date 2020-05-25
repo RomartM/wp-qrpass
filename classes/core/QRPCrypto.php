@@ -18,19 +18,26 @@ class QRPCrypto
     const DEFAULT_ENCODED_KEY = 'OHVrX1VOMVZpciRpdFlfVEAka0YwUmMzQXczJDBNMyE=';
     const END_OF_DATA_MARK = '<EOD>';
     protected $encryption_encoded_key;
+    protected $iteration;
 
     /**
      * Crypto constructor.
      *
+     * @param int $iteration
+     * @param string $encoded_key OpenSSL AES-256-CBC Base64 string (To generate:echo secret | openssl aes-256-cbc -e -base64).
      * @since 2.0.0
-     * @var string $encoded_key OpenSSL AES-256-CBC Base64 string (To generate:echo secret | openssl aes-256-cbc -e -base64).
      */
-    public function __construct($encoded_key = null){
+    public function __construct($encoded_key = '', $iteration=1000){
         if(empty($encoded_key)){
-            $this->encryption_encoded_key = self::DEFAULT_ENCODED_KEY;
+            if(!empty(get_option( WP_QRP_OPTION_PREFIX . "qrp_security_password" ))){
+                $this->encryption_encoded_key = get_option( WP_QRP_OPTION_PREFIX . "qrp_security_password" );
+            } else {
+                $this->encryption_encoded_key = self::DEFAULT_ENCODED_KEY;
+            }
         }else{
             $this->encryption_encoded_key = $encoded_key;
         }
+        $this->iteration = $iteration;
     }
 
     /**
@@ -85,11 +92,17 @@ class QRPCrypto
     /**
      * Set Encoded Key.
      *
-     * @since 2.0.0
+     * @return bool
      * @var string $encoded_key OpenSSL AES-256-CBC Base64 string (To generate:echo secret | openssl aes-256-cbc -e -base64).
+     * @since 2.0.0
      */
-    public function setEncodedKey($encoded_key){
-        $this->encryption_encoded_key = $encoded_key;
+    public function setEncodedKey($pass_key){
+        global $current_user;
+        wp_get_current_user();
+        $salt = openssl_random_pseudo_bytes(32);
+        $encoded_key = json_encode(hash_pbkdf2("sha256", $pass_key, $salt, $this->iteration, 32));
+        update_option( WP_QRP_OPTION_PREFIX . "security_update_time", array('user'=>$current_user->user_login, 'date'=>QRPUtility::instance()->get_date()));
+        return update_option( WP_QRP_OPTION_PREFIX . "security_password", $encoded_key);
     }
 
 }

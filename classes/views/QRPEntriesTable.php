@@ -31,14 +31,8 @@ class QRPEntriesTable extends WP_List_Table
         $this->type = '';
         $this->form = $form;
         $this->form_id = $form['ID'];
-        $this->data = QRPEntriesManager::get_cf_entries( self::$instance->form_id, 1, 1 );
+        $this->data = QRPEntriesManager::get_cf_entries( $this->form_id, 1, 1 );
         $this->data_table = new QRPDataTable();
-    }
-
-    public function setup($form, $type){
-        $this->type = $type;
-        //$this->form = $form;
-        $this->form_id = $form['ID'];
     }
 
     protected function verifyIfEmpty(){
@@ -70,6 +64,11 @@ class QRPEntriesTable extends WP_List_Table
     }
 
     protected function formatCFData($entries, $search=''){
+
+        if(empty($entries)){
+            return array();
+        }
+
         $formatted = array();
         $index = 0;
 
@@ -114,7 +113,6 @@ class QRPEntriesTable extends WP_List_Table
     protected function custom_row_actions( $actions, $id_number, $always_visible = false) {
         $data_table = new QRPDataTable();
         $user_status = $data_table->getUserData($id_number)['status'];
-        $style = "";
         $action_count = count( $actions );
         $i            = 0;
 
@@ -160,11 +158,12 @@ class QRPEntriesTable extends WP_List_Table
 
         if(!empty($search)){
             $data = QRPEntriesManager::get_cf_entries( self::$instance->form_id, 1, 99999999 );
-            return self::$instance->formatCFData($data['entries'], $search);
+            return self::$instance->formatCFData(empty($data['entries']) ? array() : $data['entries'], $search);
         }
 
         $data = QRPEntriesManager::get_cf_entries( self::$instance->form_id, $page_number, $per_page );
-        return self::$instance->formatCFData($data['entries']);
+
+        return self::$instance->formatCFData(empty($data['entries']) ? array() : $data['entries']);
     }
 
     /**
@@ -189,7 +188,7 @@ class QRPEntriesTable extends WP_List_Table
 
     public static function get_record_count() {
         $data = QRPEntriesManager::get_cf_entries( self::$instance->form_id, 1, 9999999 );
-        return count($data['entries']);
+        return count(empty($data['entries']) ? array() : $data['entries']);
     }
 
     /**

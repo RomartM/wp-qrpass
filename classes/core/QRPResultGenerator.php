@@ -37,7 +37,7 @@ class QRPResultGenerator
         $field = Caldera_Forms_Field_Util::get_field_by_slug('id_number', $this->form_instance);
 
         $parsed_param = '';
-        $raw_data = get_option('qrp_form_response_config_'. $entry->get_form_id());
+        $raw_data = get_option( WP_QRP_OPTION_PREFIX . "form_response_config_". $entry->get_form_id());
         parse_str($raw_data, $parsed_param);
 
         $id_number_initial = $entry->get_field($field['ID']);
@@ -84,7 +84,7 @@ class QRPResultGenerator
             }
 
             if($settings_data['is_display_qr'] == 'on'){
-                $qr_gen = new QRPGenerator($id_number);
+                $qr_gen = new QRPGenerator($id_number, $this->form_id);
                 $url = $qr_gen->getResourceURL();
                 $image = file_get_contents($url);
                 $html .= "<div class=\"qrpass-container\" style=\"font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,sans-serif;background-color:#fff;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-radius:15px;padding-top:15px;padding-bottom:15px;padding-right:15px;padding-left:15px;max-width:600px;margin:10px auto;\">

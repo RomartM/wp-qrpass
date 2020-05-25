@@ -13,30 +13,35 @@ if (! defined( 'ABSPATH' ) ){
     exit;
 }
 
-define('QRP_PLUGIN_PATH', plugin_dir_url( __FILE__ ));
-define( 'QRP_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+// Declare some global constants
+define( 'WP_QRP_VERSION', '1.1' );
+define( 'WP_QRP_TABLE_LOG_VERSION', '1.1' );
+define( 'WP_QRP_TABLE_USER_LIST_VERSION', '1.1' );
+define( 'WP_QRP_ROOT', dirname( __FILE__ ) );
+define( 'WP_QRP_URL', plugins_url( '/', __FILE__ ) );
+define( 'WP_QRP_BASE_FILE', basename( dirname( __FILE__ ) ) . '/wp-qrpass.php' );
+define( 'WP_QRP_BASE_NAME', plugin_basename( __FILE__ ) );
+define( 'WP_QRP_PATH', plugin_dir_path( __FILE__ ) ); //use for include files to other files
+define( 'WP_QRP_PRODUCT_NAME', 'QR Pass integration for Caldera Forms' );
+define( 'WP_QRP_OPTION_PREFIX', 'wp_qrp_' );
+define( 'WP_QRP_STORAGE_PATH', WP_CONTENT_URL . '/uploads/' );
 
-define('PHOTO_CLOUD_STORAGE_URL', 'https://site.buksu.edu.ph/fetch-photo.php?photo_id=');
-define('FALLBACK_IMAGE', 'https://www.w3schools.com/howto/img_avatar.png');
-define('IMAGE_STORAGE_PATH', WP_CONTENT_DIR.'/uploads/qrp-assets'); // TODO: Check if dir exists
+/*
+ * include classes
+ */
 
-define('QRP_LOGGER_TABLE', '1.1');
-define('QRP_USER_LIST_TABLE', '1.1');
-
-function qrp_init(){
-    include 'classes/core/QRPDataTable.php';
-    include 'classes/core/QRPCrypto.php';
-    include 'classes/core/QRPHashValidator.php';
-    include 'classes/core/QRPGenerator.php';
-    include 'classes/core/QRPResponseFilter.php';
-    include 'classes/core/QRPResultGenerator.php';
-    include 'classes/core/QRPActivityCollector.php';
-    include 'classes/core/QRPEntriesManager.php';
-    include 'classes/views/QRPEntriesTable.php';
-    include 'overrides/caldera-hooks.php';
-    include 'views/entries-manager.php';
-    include 'views/validate.php';
-    include 'views/image-resource.php';
+if ( ! class_exists( 'QRPUtils' ) ) {
+    include( WP_QRP_ROOT . '/includes/QRPUtility.php' );
 }
 
-add_action('plugins_loaded', 'qrp_init');
+if ( ! class_exists( 'QRPAdminPages' ) ) {
+    include( WP_QRP_ROOT . '/classes/views/QRPAdminPages.php' );
+}
+
+if ( ! class_exists( 'QRPInit' ) ) {
+    include( WP_QRP_ROOT . '/classes/init/QRPInit.php' );
+}
+
+// Initialize the QR Pass class
+$init = new QRPInit();
+

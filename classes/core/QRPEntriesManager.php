@@ -215,30 +215,6 @@ class QRPEntriesManager extends QRPDataTable
 
     }
 
-
-    /**
-     * Get Caldera Form Entry ID by ID Number
-     *
-     * @param $data
-     * @param $id_number
-     * @return mixed
-     */
-    function getEntryIDbyIDNumber($data, $id_number){
-        foreach ($data['entries'] as $entry){
-            if(ucwords(str_replace('_', '', $entry['data']['id_number'])) == $id_number){
-                return $entry['_entry_id'];
-            }
-        }
-        return false;
-    }
-
-    protected function getFieldValueIfExist($field_meta){
-        if(!empty($field_meta)){
-            return $field_meta->get_value();
-        }
-        return "";
-    }
-
     private function veriyActionStatus($id_number, $action, $status){
 
         $form = $this->form_instance;
@@ -259,6 +235,29 @@ class QRPEntriesManager extends QRPDataTable
             default:
                 return null;
         }
+    }
+
+    /**
+     * Get Caldera Form Entry ID by ID Number
+     *
+     * @param $data
+     * @param $id_number
+     * @return mixed
+     */
+    public function getEntryIDbyIDNumber($data, $id_number){
+        foreach ($data['entries'] as $entry){
+            if(ucwords(str_replace('_', '', $entry['data']['id_number'])) == $id_number){
+                return $entry['_entry_id'];
+            }
+        }
+        return false;
+    }
+
+    public function getFieldValueIfExist($field_meta){
+        if(!empty($field_meta)){
+            return $field_meta->get_value();
+        }
+        return "";
     }
 
     /**
@@ -289,15 +288,13 @@ class QRPEntriesManager extends QRPDataTable
 
             //Get user group
             $group = "";
-            $link_forms_data = get_option("qrp_link_forms");
+            $link_forms_data = get_option( WP_QRP_OPTION_PREFIX . "link_forms");
             foreach ($link_forms_data as $form_id){
                 if($form_id['cf_id']==$this->form_id){
                     $group = str_replace(' ', '_', strtolower($form_id["group"]));
                     break;
                 }
             }
-
-
 
             $result = $this->insertUser($id_number , $group, '', $first_name, $middle_name, $last_name);
 
@@ -348,12 +345,12 @@ class QRPEntriesManager extends QRPDataTable
         $entry = new Caldera_Forms_Entry( $form, $this->getEntryIDbyIDNumber($data, $id_number) );
 
         $qrp_result = new QRPResultGenerator($entry->get_entry_id(), $form);
-        $header = Caldera_Forms_Magic_Doer::do_field_magic(get_option("qrp_email_message"), $entry->get_entry_id(), $form);
-        $footer = Caldera_Forms_Magic_Doer::do_field_magic(get_option("qrp_email_message_footer"), $entry->get_entry_id(), $form);
+        $header = Caldera_Forms_Magic_Doer::do_field_magic(get_option( WP_QRP_OPTION_PREFIX . "email_message"), $entry->get_entry_id(), $form);
+        $footer = Caldera_Forms_Magic_Doer::do_field_magic(get_option( WP_QRP_OPTION_PREFIX . "email_message_footer"), $entry->get_entry_id(), $form);
 
         $message = $qrp_result->resultHTML($header, $footer);;
 
-        $raw_data = get_option('qrp_form_response_config_'.$this->form_id);
+        $raw_data = get_option( WP_QRP_OPTION_PREFIX . 'form_response_config_'.$this->form_id);
 
         parse_str($raw_data, $parsed_param);
 
@@ -397,8 +394,8 @@ class QRPEntriesManager extends QRPDataTable
         $form = $this->form_instance;
         $data = $this->form_entries;
         $entry = new Caldera_Forms_Entry( $form, $this->getEntryIDbyIDNumber($data, $id_number) );
-        $qrp_gen = new QRPGenerator($id_number);
-        $subject = get_option("qrp_email_subject");
+        $qrp_gen = new QRPGenerator($id_number, $this->form_id);
+        $subject = get_option( WP_QRP_OPTION_PREFIX . "email_subject");
         $message = Caldera_Forms_Magic_Doer::do_field_magic($message, $entry->get_entry_id(), $form);
 
         if($is_attach_qr){
@@ -409,7 +406,7 @@ class QRPEntriesManager extends QRPDataTable
         return wp_mail($email_address, $subject , $message, $headers, $attachments);
     }
 
-    public function getUserEntryFields($id_number){
+    public function getUserEntryFields($id_number, $include_media=true){
         $filter_slugs = 'start_screening qrpass proceed next next2 submit';
         $formatted_fields = array();
         $index = 0;
@@ -426,18 +423,19 @@ class QRPEntriesManager extends QRPDataTable
             }
         }
 
-        $qrp_generator  = new QRPGenerator($id_number);
+        $qrp_generator  = new QRPGenerator($id_number, $this->form_id);
 
-        // Get QR
-        $index++;
-        $formatted_fields[$index]['label'] = 'qrcode';
-        $formatted_fields[$index]['value'] = $qrp_generator->getResourceURL();
+        if($include_media){
+            // Get QR
+            $index++;
+            $formatted_fields[$index]['label'] = 'qrcode';
+            $formatted_fields[$index]['value'] = $qrp_generator->getResourceURL();
 
-        // Get Photo
-        $index++;
-        $formatted_fields[$index]['label'] = 'photo';
-        $formatted_fields[$index]['value'] = sprintf("%s/?photo_id=%s", get_home_url(), $qrp_generator->getHash());
-
+            // Get Photo
+            $index++;
+            $formatted_fields[$index]['label'] = 'photo';
+            $formatted_fields[$index]['value'] = sprintf("%s/?photo_id=%s", get_home_url(), $qrp_generator->getHash());
+        }
 
         return $formatted_fields;
     }
@@ -506,6 +504,37 @@ class QRPEntriesManager extends QRPDataTable
 
         foreach ($data['entries'] as $entry){
             if(str_replace('_', '', $entry['data']['id_number']) == $id_number){
+                return $entry;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Search Entry by Full Name
+     *
+     * @param $name
+     * @return mixed
+     */
+    public function searchByName($name){
+        $data = $this->form_entries;
+        $form = $this->form_instance;
+
+
+        foreach ($data['entries'] as $entry){
+            //Get  form entry
+            $entry = new Caldera_Forms_Entry( $form, $entry['_entry_id'] );
+
+            //Get field object of field to get
+            $first_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('first_name', $form)['ID']);
+            $middle_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('middle_name', $form)['ID']);
+            $last_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('last_name', $form)['ID']);
+
+            $first_name = $this->getFieldValueIfExist($first_name_meta);
+            $middle_name = $this->getFieldValueIfExist($middle_name_meta);
+            $last_name = $this->getFieldValueIfExist($last_name_meta);
+
+            if(sprintf("%s %s %s", $first_name, $middle_name, $last_name) == $name){
                 return $entry;
             }
         }

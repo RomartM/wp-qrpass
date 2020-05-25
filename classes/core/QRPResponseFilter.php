@@ -108,7 +108,7 @@ class QRPResponseFilter
 
     public function process(){
         $parsed_data = '';
-        $raw_data = get_option('qrp_form_filters_config_'. $this->form_id );
+        $raw_data = get_option( WP_QRP_OPTION_PREFIX . "form_filters_config_" . $this->form_id );
         parse_str($raw_data, $parsed_data);
 
         $entry = new Caldera_Forms_Entry( $this->form, $this->entry_id );

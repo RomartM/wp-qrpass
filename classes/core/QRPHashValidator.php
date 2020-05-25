@@ -41,9 +41,17 @@ class QRPHashValidator extends QRPCrypto
         try {
             list($data, $iv) = json_decode(base64_decode($this->data_hash));
             $data_content = $this->decrypt($data, $iv);
+            if(empty(json_decode($data_content['content'])->{'user-id'}) ||
+               empty(json_decode($data_content['content'])->{'form-id'})){
+                throw new Exception('Can\' retrieve user ID.');
+            }
             $data_id_no = json_decode($data_content['content'])->{'user-id'};
+            $data_id_fo = json_decode($data_content['content'])->{'form-id'};
             $data_result['status'] = $data_content['status'];
-            $data_result['content'] = strlen($data_id_no) < 5 ? 'Empty' : $data_id_no;
+            $data_result['content'] = array(
+                strlen($data_id_no) < 5 ? 'Empty' : $data_id_no,
+                strlen($data_id_fo) < 5 ? 'Empty' : $data_id_fo
+            );
         } catch (Exception $e) {
             $data_result['status'] = 'error';
             $data_result['content'] = $e->getMessage();
@@ -54,26 +62,38 @@ class QRPHashValidator extends QRPCrypto
     /**
      * Get hash result as JSON response.
      *
-     * @since 2.0.0
-     * @var string $hash A hash from QR Code
+     * @param bool $is_resource
+     * @param string $resource_callback
      * @return string
+     * @since 2.0.0
      */
-    function getResponse(){
+    function getResponse($is_resource=false, $resource_callback=''){
         $hash = $this->decryptHash();
         $status = $hash['status'];
-        $data = $hash['content'];
+        $id_number = $hash['content'][0];
+        $form_id = $hash['content'][1];
+
+        $is_remote = get_option( WP_QRP_OPTION_PREFIX . "is_storage_remote'");
+        if(!empty($is_remote)){
+            $this->photo_cloud_storage_url = get_option( WP_QRP_OPTION_PREFIX . "storage_remote_url'") . '/';
+        }else{
+            $this->photo_cloud_storage_url = WP_QRP_STORAGE_PATH . sanitize_title(WP_QRP_OPTION_PREFIX . $form_id ) . '/';
+        }
 
         if($status == 'success'){
-            if(empty($data)){
+            if(empty($id_number) || empty($form_id)){
                 return $this->getResponseJSON(null, 401, "Pass not Valid");
             }else{
                 // Get User Information
-                $id_number = $data;
                 $user_data = $this->data_table->getUserData($id_number);
 
                 $payload['user-id'] = strtoupper($id_number);
                 $payload['user-photo'] = $this->photo_cloud_storage_url .  base64_encode(json_encode($this->data_hash));
-                $payload['user-name'] = (strlen($this->getName($user_data)) <= 4) ? 'No Name Data' : $this->getName($user_data); //(strlen(getName($user_data)) <= 4) ?  ((strlen($id_number) <= 4) ? 'No Name Data' : 'Guest') : getName($user_data);
+                $payload['user-name'] = (strlen($this->getName($user_data)) <= 4) ? 'No Data for Name' : $this->getName($user_data);
+
+                if($is_resource){
+                    $payload['user-meta'] = $resource_callback($form_id, $id_number);
+                }
 
                 return $this->getResponseJSON($payload, $this->getStatusCode($id_number), $this->getStatus($id_number));
             }
@@ -132,7 +152,7 @@ class QRPHashValidator extends QRPCrypto
      * @return integer
      */
     public function getStatusCode($id_number){
-        if($this->data_table->getUserData($id_number)['status'] == 'Passed'){
+        if($this->data_table->getUserData($id_number)['status'] == 'approve'){
             return 200;
         }else{
             return 403;

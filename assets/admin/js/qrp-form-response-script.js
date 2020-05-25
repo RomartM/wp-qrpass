@@ -81,10 +81,7 @@ jQuery(document).ready(function($) {
         $('input[name="response_settings[is_display_time]"]').prop('checked', parse_data.is_display_time === 'on');
         $('input[name="response_settings[is_resend_response]"]').prop('checked', parse_data.is_resend_response === 'on');
         $('input[name="response_settings[is_duplicate_response]"]').prop('checked', parse_data.is_duplicate_response === 'on');
-
-        $.each(parse_data.display_fields.value, function (index, value) {
-            $('#qrp_' + index ).prop('checked', true);
-        })
+        $('textarea[name="response_settings[duplicate_response_message]"]').val(parse_data.duplicate_response_message);
     }
 
     function submitAction(cf_id, param, data, successCallback) {

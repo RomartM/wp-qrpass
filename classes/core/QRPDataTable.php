@@ -20,7 +20,7 @@ class QRPDataTable
     public function __construct()
     {
         global $wpdb;
-        $this->logger_table_name = $wpdb ->prefix. 'qrp_logger';
+        $this->logger_table_name = $wpdb->prefix. 'qrp_logger';
         $this->user_list_table_name = $wpdb->prefix . 'qrp_user_list';
         $this->charset_collate = $wpdb->get_charset_collate();
     }
@@ -41,13 +41,23 @@ class QRPDataTable
         $this->userListUninstall();
     }
 
+    public function deleteOptions($prefix=WP_QRP_OPTION_PREFIX){
+        global $wpdb;
+
+        $plugin_options = $wpdb->get_results( "SELECT option_name FROM $wpdb->options WHERE option_name LIKE ".$prefix."'%'" );
+
+        foreach( $plugin_options as $option ) {
+            delete_option( $option->option_name );
+        }
+    }
+
     /**
      * loggerInstall
      */
     protected function loggerInstall(){
-        $installed_ver = get_option( "qrp_logger_dt_version" );
+        $installed_ver = get_option( WP_QRP_OPTION_PREFIX . "logger_dt_version" );
 
-        if ( $installed_ver != QRP_LOGGER_TABLE ) {
+        if ( $installed_ver != WP_QRP_TABLE_LOG_VERSION ) {
 
             $this->loggerUpdate();
 
@@ -65,7 +75,7 @@ class QRPDataTable
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
             dbDelta( $sql );
 
-            add_option( 'qrp_logger_dt_version', QRP_LOGGER_TABLE );
+            add_option( WP_QRP_OPTION_PREFIX . "qrp_logger_dt_version", WP_QRP_TABLE_LOG_VERSION );
         }
     }
 
@@ -85,7 +95,7 @@ class QRPDataTable
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
 
-        update_option( 'qrp_logger_dt_version', QRP_LOGGER_TABLE );
+        update_option( WP_QRP_OPTION_PREFIX . "logger_dt_version", WP_QRP_TABLE_LOG_VERSION );
     }
 
     /**
@@ -102,9 +112,9 @@ class QRPDataTable
      * userListInstall
      */
     protected function userListInstall(){
-        $installed_ver = get_option( "qrp_user_list_dt_version" );
+        $installed_ver = get_option( WP_QRP_OPTION_PREFIX . "user_list_dt_version" );
 
-        if ( $installed_ver != QRP_USER_LIST_TABLE ) {
+        if ( $installed_ver != WP_QRP_TABLE_USER_LIST_VERSION ) {
             $this->userListUpdate();
         }else{
 
@@ -123,8 +133,7 @@ class QRPDataTable
 
             require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
             dbDelta( $sql );
-
-            add_option( 'qrp_user_list_dt_version', QRP_USER_LIST_TABLE );
+            add_option( WP_QRP_OPTION_PREFIX . "qrp_user_list_dt_version", WP_QRP_TABLE_USER_LIST_VERSION );
         }
     }
 
@@ -148,7 +157,7 @@ class QRPDataTable
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta( $sql );
 
-        update_option( 'qrp_user_list_dt_version', QRP_USER_LIST_TABLE );
+        update_option( WP_QRP_OPTION_PREFIX . "user_list_dt_version", WP_QRP_TABLE_USER_LIST_VERSION );
     }
 
     /**
@@ -185,18 +194,6 @@ class QRPDataTable
     }
 
     /**
-     * Get current datetime
-     *
-     * @return false|string
-     */
-    function get_date() {
-        $date_format = get_option('date_format');
-        $time_format = get_option('time_format');
-        $date = date("{$date_format} {$time_format}", current_time('timestamp'));
-        return $date;
-    }
-
-    /**
      *  Logs all data modification actions
      *
      * @param $action
@@ -209,7 +206,7 @@ class QRPDataTable
         } else {
             $username = "anonymous";
         }
-        $logMsg = "QRPDT, user: (" . $username . "), timestamp:" . $this->get_date() . ', action:'. $action . PHP_EOL;
+        $logMsg = "QRPDT, user: (" . $username . "), timestamp:" . QRPUtility::instance()->get_date() . ', action:'. $action . PHP_EOL;
         file_put_contents('qrdt-legacy.logs', $logMsg, FILE_APPEND | LOCK_EX);
     }
 

@@ -9,17 +9,20 @@
  */
 class QRPGenerator extends QRPCrypto
 {
-    private $data, $prefix, $image_size;
+    private $data, $form_id, $prefix, $image_size;
 
     /**
      * GenerateQRCode constructor.
      *
+     * @param $data
+     * @param $form_id
      * @since 2.0.0
-     * @var string $data A data to be encrypted and converted to QR Code
+     *
      */
-    function __construct($data) {
+    function __construct($data, $form_id) {
         parent::__construct();
         $this->data = $data;
+        $this->form_id = $form_id;
         $this->prefix = 'qr-pass';
         $this->image_size = 350;
     }
@@ -43,6 +46,7 @@ class QRPGenerator extends QRPCrypto
      */
     function getHash(){
         $data_payload["user-id"] = $this->data;
+        $data_payload["form-id"] = $this->form_id;
         return base64_encode(json_encode($this->encrypt(json_encode($data_payload))['content']));
     }
 
