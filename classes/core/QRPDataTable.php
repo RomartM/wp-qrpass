@@ -122,6 +122,7 @@ class QRPDataTable
                 id mediumint(9) NOT NULL AUTO_INCREMENT,
                 id_number tinytext NULL,
                 ref_id tinytext NULL,
+                form_id tinytext NULL,
                 qrp_group tinytext NULL,
                 qrp_type tinytext NULL,
                 first_name varchar(55) NULL,
@@ -146,6 +147,7 @@ class QRPDataTable
                 id mediumint(9) NOT NULL AUTO_INCREMENT,
                 id_number tinytext NULL,
                 ref_id tinytext NULL,
+                form_id tinytext NULL,
                 qrp_group tinytext NULL,
                 qrp_type tinytext NULL,
                 first_name text NULL,
@@ -177,9 +179,10 @@ class QRPDataTable
      *
      * @param string $method Function name of the method
      * @param $is_status
+     * @param string $message
      * @return array
      */
-    protected function getActionStatus( $method, $is_status ){
+    protected function getActionStatus( $method, $is_status, $message = '' ){
         global $wpdb;
 
         $this->legacyLogger($method); // Log all actions into a file
@@ -187,6 +190,7 @@ class QRPDataTable
         if( 0 == $is_status ){
             return array(
                 'method'   => $method,
+                'message'  => $message,
                 'status'   => 'error' );
         }
         return array(
@@ -267,6 +271,7 @@ class QRPDataTable
      *
      * @param $id_number
      * @param $ref_id
+     * @param $form_id
      * @param $group
      * @param $type
      * @param string $first_name
@@ -276,7 +281,7 @@ class QRPDataTable
      * @param string $status
      * @return array|string[]
      */
-    public function insertUser($id_number, $ref_id, $group, $type, $first_name='', $middle_name='', $last_name='', $name_ext='', $status=''){
+    public function insertUser($id_number, $ref_id, $form_id, $group, $type, $first_name='', $middle_name='', $last_name='', $name_ext='', $status=''){
         global $wpdb;
 
         $action = $wpdb->insert(
@@ -284,6 +289,7 @@ class QRPDataTable
             array(
                 'id_number' => $id_number,
                 'ref_id' => $ref_id,
+                'form_id' => $form_id,
                 'qrp_group' => $group,
                 'qrp_type' => $type,
                 'first_name' => $first_name,
@@ -313,14 +319,20 @@ class QRPDataTable
     public function updateUserLink($id_number, $ref_id){
         global $wpdb;
 
-        $action = $wpdb-> update(
-            $this->user_list_table_name,
-            array( 'ref_id' => $ref_id ),
-            array( 'id_number' => ucwords($id_number) ),
-            array( '%s', '%s' )
-        );
+        $message = '';
+        if(!$this->isRefIDExist($ref_id)){
+            $action = $wpdb-> update(
+                $this->user_list_table_name,
+                array( 'ref_id' => $ref_id ),
+                array( 'id_number' => ucwords($id_number) ),
+                array( '%s', '%s' )
+            );
+        }else{
+            $action = 0;
+            $message = 'Reference ID already assigned';
+        }
 
-        return $this->getActionStatus(__FUNCTION__, $action);
+        return $this->getActionStatus(__FUNCTION__, $action, $message);
     }
 
     /**
@@ -353,6 +365,20 @@ class QRPDataTable
         global $wpdb;
 
         return $wpdb->get_row("SELECT * FROM ".  $this->user_list_table_name ." WHERE id_number LIKE BINARY '".$id_number."'", ARRAY_A);
+    }
+
+    public function getUserDataByRefID($ref_id){
+        global $wpdb;
+
+        return $wpdb->get_row("SELECT * FROM ".  $this->user_list_table_name ." WHERE ref_id LIKE BINARY '".$ref_id."'", ARRAY_A);
+    }
+
+    public function isRefIDExist($ref_id){
+        global $wpdb;
+
+        $results  = $wpdb->get_results("SELECT * FROM ".  $this->user_list_table_name ." WHERE id_number LIKE BINARY '".$ref_id."'", ARRAY_N);
+
+        return (count($results) > 0);
     }
 
     public function isUserDataExist($id_number){

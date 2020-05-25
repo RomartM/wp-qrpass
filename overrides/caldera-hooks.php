@@ -4,6 +4,8 @@ add_filter('caldera_forms_ajax_return', function($out, $form){
     $form = Caldera_Forms_Forms::get_form( $form['ID'] );
 
     $qrp_result = new QRPResultGenerator($out['data']['cf_id'], $form);
+    $entry_manager = new QRPEntriesManager($form['ID']);
+    $entry_manager->syncUserData($qrp_result->getIDNumber());
 
     $out["html"] .= $qrp_result->resultHTML();
 
@@ -115,7 +117,6 @@ add_action( 'caldera_forms_submit_start', function( array $form, $process_id ) {
             echo "<div class=\"alert alert-error\" style=\"padding: 25px 5px;font-size: 15px;margin-bottom: 100px;\">" . $error_message . "<br\/></div>" . $styles;
             die();
         }
-        die("Passed");
 		return;
 	}, 10, 2 );
 

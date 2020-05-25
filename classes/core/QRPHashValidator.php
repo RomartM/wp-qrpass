@@ -25,8 +25,24 @@ class QRPHashValidator extends QRPCrypto
      */
     function __construct($hash){
         parent::__construct();
-        $this->data_hash = $hash;
         $this->data_table = new QRPDataTable();
+        if($this->checkIfRefID($hash)){
+            $id_number = $this->data_table->getUserDataByRefID($hash)['id_number'];
+            $form_id = $this->data_table->getUserDataByRefID($hash)['form_id'];
+            if(!empty($id_number) && !empty($form_id)){
+                $v_gen = new QRPGenerator($id_number, $form_id);
+                $this->data_hash = $v_gen->getHash();
+            }else{
+                $this->data_hash = $hash;
+            }
+        }else{
+            $this->data_hash = $hash;
+        }
+    }
+
+    private function checkIfRefID($hash){
+        preg_match('/R-\d+$/', $hash, $matches, PREG_OFFSET_CAPTURE);
+        return !empty($matches);
     }
 
     /**
@@ -88,7 +104,7 @@ class QRPHashValidator extends QRPCrypto
                 $user_data = $this->data_table->getUserData($id_number);
 
                 $payload['user-id'] = strtoupper($id_number);
-                $payload['user-photo'] = $this->photo_cloud_storage_url .  base64_encode(json_encode($this->data_hash));
+                $payload['user-photo'] = get_site_url(null, '?photo_id=' .  base64_encode(json_encode($this->data_hash)) );
                 $payload['user-name'] = (strlen($this->getName($user_data)) <= 4) ? 'No Data for Name' : $this->getName($user_data);
 
                 if($is_resource){

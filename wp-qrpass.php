@@ -2,7 +2,7 @@
 /**
 * Plugin Name: QR Pass
 * Plugin URI:
-* Description: Verifies the autheticity of generated QR Code for COVID-19 entry form
+* Description: Integrate QR Pass generation for Caldera Forms
 * Version: 1.2
 * Author: RomartM
 * Author URI:
@@ -44,4 +44,6 @@ if ( ! class_exists( 'QRPInit' ) ) {
 
 // Initialize the QR Pass class
 $init = new QRPInit();
+
+//$init->wp_qrp_activate(); //Force Upgrade Database
 

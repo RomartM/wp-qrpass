@@ -280,6 +280,36 @@ class QRPEntriesManager extends QRPDataTable
         return "";
     }
 
+    public function syncUserData($id_number){
+        $form = $this->form_instance;
+        $data = $this->form_entries;
+
+
+        //Get  form entry
+        $entry = new Caldera_Forms_Entry( $form, $this->getEntryIDbyIDNumber($data, $id_number) );
+
+        //Get field object of field to get
+        $first_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('first_name', $form)['ID']);
+        $middle_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('middle_name', $form)['ID']);
+        $last_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('last_name', $form)['ID']);
+
+        $first_name = $this->getFieldValueIfExist($first_name_meta);;
+        $middle_name = $this->getFieldValueIfExist($middle_name_meta);;
+        $last_name = $this->getFieldValueIfExist($last_name_meta);;
+
+        //Get user group
+        $group = "";
+        $link_forms_data = get_option( WP_QRP_OPTION_PREFIX . "link_forms");
+        foreach ($link_forms_data as $form_id){
+            if($form_id['cf_id']==$this->form_id){
+                $group = str_replace(' ', '_', strtolower($form_id["group"]));
+                break;
+            }
+        }
+
+        return $this->insertUser($id_number , '', $this->form_id, $group, '', $first_name, $middle_name, $last_name);
+    }
+
     /**
      * Approve QR Pass
      *
@@ -290,34 +320,7 @@ class QRPEntriesManager extends QRPDataTable
         if($this->isUserDataExist($id_number)){
             return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserStatus($id_number, __FUNCTION__));
         } else {
-            $form = $this->form_instance;
-            $data = $this->form_entries;
-
-
-            //Get  form entry
-            $entry = new Caldera_Forms_Entry( $form, $this->getEntryIDbyIDNumber($data, $id_number) );
-
-            //Get field object of field to get
-            $first_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('first_name', $form)['ID']);
-            $middle_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('middle_name', $form)['ID']);
-            $last_name_meta = $entry->get_field(Caldera_Forms_Field_Util::get_field_by_slug('last_name', $form)['ID']);
-
-            $first_name = $this->getFieldValueIfExist($first_name_meta);;
-            $middle_name = $this->getFieldValueIfExist($middle_name_meta);;
-            $last_name = $this->getFieldValueIfExist($last_name_meta);;
-
-            //Get user group
-            $group = "";
-            $link_forms_data = get_option( WP_QRP_OPTION_PREFIX . "link_forms");
-            foreach ($link_forms_data as $form_id){
-                if($form_id['cf_id']==$this->form_id){
-                    $group = str_replace(' ', '_', strtolower($form_id["group"]));
-                    break;
-                }
-            }
-
-            $result = $this->insertUser($id_number , '', $group, '', $first_name, $middle_name, $last_name);
-
+            $result = $this->syncUserData($id_number);
             if($result['status'] == 'success'){
                 return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserStatus($id_number, __FUNCTION__));
             }else{
@@ -341,10 +344,21 @@ class QRPEntriesManager extends QRPDataTable
      * Set reference id
      * @param $id_number
      * @param $ref_id
-     * @return |null
+     * @return string[]|null
      */
     public function link($id_number, $ref_id){
-        return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserLink($id_number, $ref_id));
+        if($this->isUserDataExist($id_number)){
+            return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserLink($id_number, $ref_id));
+        } else {
+            $result = $this->syncUserData($id_number);
+            if($result['status'] == 'success'){
+                return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserLink($id_number, $ref_id));
+            }else{
+                return array(
+                    'method'   => 'DATA_INSERTION',
+                    'status'   => 'error' );
+            }
+        }
     }
 
     /**

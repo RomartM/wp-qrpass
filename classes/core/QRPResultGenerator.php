@@ -32,6 +32,20 @@ class QRPResultGenerator
         }
     }
 
+    public function getIDNumber(){
+        $entry = new Caldera_Forms_Entry( $this->form_instance, $this->form_entry_id );
+        $field = Caldera_Forms_Field_Util::get_field_by_slug('id_number', $this->form_instance);
+
+        $id_number_initial = $entry->get_field($field['ID']);
+
+        if(!empty($id_number_initial)){
+            $id_number = $id_number_initial->get_value();
+        }else{
+            $id_number = $entry->get_entry_id();
+        }
+        return $id_number;
+    }
+
     public function resultHTML($header = null, $footer = null){
         $entry = new Caldera_Forms_Entry( $this->form_instance, $this->form_entry_id );
         $field = Caldera_Forms_Field_Util::get_field_by_slug('id_number', $this->form_instance);
