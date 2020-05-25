@@ -1,12 +1,6 @@
 <?php
 
-/*
- * Utilities class for Google Sheet Integration for Caldera Forms
- * @since       1.0
- */
-
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined( 'ABSPATH' ) ){
     exit;
 }
 

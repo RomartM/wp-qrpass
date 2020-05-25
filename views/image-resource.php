@@ -1,4 +1,7 @@
 <?php
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
 
 function qrp_image_resource(){
     if ( is_home() || is_front_page() ) {

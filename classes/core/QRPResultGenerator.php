@@ -4,6 +4,9 @@ if (! defined( 'ABSPATH' ) ){
     exit;
 }
 
+/**
+ * Class QRPResultGenerator
+ */
 class QRPResultGenerator
 {
 
@@ -32,6 +35,10 @@ class QRPResultGenerator
         }
     }
 
+    /**
+     * Get entry id number
+     * @return array|int|string
+     */
     public function getIDNumber(){
         $entry = new Caldera_Forms_Entry( $this->form_instance, $this->form_entry_id );
         $field = Caldera_Forms_Field_Util::get_field_by_slug('id_number', $this->form_instance);
@@ -46,6 +53,12 @@ class QRPResultGenerator
         return $id_number;
     }
 
+    /**
+     * Output html based response result
+     * @param null $header
+     * @param null $footer
+     * @return string
+     */
     public function resultHTML($header = null, $footer = null){
         $entry = new Caldera_Forms_Entry( $this->form_instance, $this->form_entry_id );
         $field = Caldera_Forms_Field_Util::get_field_by_slug('id_number', $this->form_instance);

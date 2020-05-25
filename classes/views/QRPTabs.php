@@ -1,6 +1,12 @@
 <?php
 
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
 
+/**
+ * Class QRPTabs
+ */
 class QRPTabs
 {
     private $tab;

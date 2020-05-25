@@ -1,5 +1,9 @@
 <?php
 
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
+
 /**
  * QRPCrypto - PHP AES-256 Crypto.
  *
@@ -7,11 +11,6 @@
  *
  * @since 2.0.0
  */
-
-if (! defined( 'ABSPATH' ) ){
-    exit;
-}
-
 class QRPCrypto
 {
 

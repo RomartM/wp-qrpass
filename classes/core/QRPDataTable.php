@@ -1,13 +1,12 @@
 <?php
 
-/**
- * Class QRPDataTable
- */
-
 if (! defined( 'ABSPATH' ) ){
     exit;
 }
 
+/**
+ * Class QRPDataTable
+ */
 class QRPDataTable
 {
     public $logger_table_name;
@@ -41,6 +40,10 @@ class QRPDataTable
         $this->userListUninstall();
     }
 
+    /**
+     * Recursively delete plugin wp options
+     * @param string $prefix
+     */
     public function deleteOptions($prefix=WP_QRP_OPTION_PREFIX){
         global $wpdb;
 
@@ -316,6 +319,12 @@ class QRPDataTable
         return $this->getActionStatus(__FUNCTION__, $action);
     }
 
+    /**
+     * Update user data reference id
+     * @param $id_number
+     * @param $ref_id
+     * @return array|string[]
+     */
     public function updateUserLink($id_number, $ref_id){
         global $wpdb;
 
@@ -367,20 +376,35 @@ class QRPDataTable
         return $wpdb->get_row("SELECT * FROM ".  $this->user_list_table_name ." WHERE id_number LIKE BINARY '".$id_number."'", ARRAY_A);
     }
 
+    /**
+     * Get user data by reference id
+     * @param $ref_id
+     * @return array|object|void|null
+     */
     public function getUserDataByRefID($ref_id){
         global $wpdb;
 
         return $wpdb->get_row("SELECT * FROM ".  $this->user_list_table_name ." WHERE ref_id LIKE BINARY '".$ref_id."'", ARRAY_A);
     }
 
+    /**
+     * Check if reference id is already exist
+     * @param $ref_id
+     * @return bool
+     */
     public function isRefIDExist($ref_id){
         global $wpdb;
 
-        $results  = $wpdb->get_results("SELECT * FROM ".  $this->user_list_table_name ." WHERE id_number LIKE BINARY '".$ref_id."'", ARRAY_N);
+        $results  = $wpdb->get_results("SELECT * FROM ".  $this->user_list_table_name ." WHERE ref_id LIKE BINARY '".$ref_id."'", ARRAY_N);
 
         return (count($results) > 0);
     }
 
+    /**
+     * Check if id number already exist
+     * @param $id_number
+     * @return bool
+     */
     public function isUserDataExist($id_number){
         global $wpdb;
 

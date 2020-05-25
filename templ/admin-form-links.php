@@ -1,4 +1,8 @@
 <?php
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
+
 global $current_user;
 wp_get_current_user();
 if( $_SERVER['REQUEST_METHOD'] === 'POST' ){

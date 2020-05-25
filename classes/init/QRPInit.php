@@ -1,13 +1,12 @@
 <?php
 
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
 
-
-/*
- * Main WP QRP class
- * @class WP_QRP_Init
- * @since 1.0
+/**
+ * Class QRPInit
  */
-
 class QRPInit {
 
     private $ajax_responder;
@@ -52,6 +51,9 @@ class QRPInit {
         $this->ajax_responder = new QRPAjaxResponder();
     }
 
+    /**
+     * Load plugin classes
+     */
     public function include_classes(){
         QRPUtility::instance()->load_classes(array(
             'classes/core/QRPDataTable.php',
@@ -86,7 +88,6 @@ class QRPInit {
      *
      *  @since 1.0
      */
-
     public static function wp_qrp_uninstall() {
         // Drop Database excluding caldera form entries
         $db = new QRPDataTable();

@@ -1,5 +1,9 @@
 <?php
 
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
+
 $link_forms_data = get_option( WP_QRP_OPTION_PREFIX . "link_forms");
 if(empty($link_forms_data)){
     echo "<div>Please link at least one form to be able to use this dashboard.</div></div>";

@@ -539,7 +539,11 @@ class QRPEntriesManager extends QRPDataTable
             'status'   => 'success' );
     }
 
-
+    /**
+     * Get user data reference id
+     * @param $id_number
+     * @return array
+     */
     public function getUserLink($id_number){
 
         $ref_id = $this->getUserData($id_number)['ref_id'];

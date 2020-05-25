@@ -1,6 +1,11 @@
 <?php
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
 
-
+/**
+ * Class QRPAjaxResponder
+ */
 class QRPAjaxResponder
 {
     public function __construct(){
@@ -40,6 +45,9 @@ class QRPAjaxResponder
         die();
     }
 
+    /**
+     * View user data
+     */
     public function qrp_view() {
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
@@ -48,6 +56,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Approve qr pass entry
+     */
     public function qrp_approve() {
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
@@ -56,6 +67,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Revoke qr pass entry
+     */
     public function qrp_revoke() {
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
@@ -64,6 +78,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Update reference id
+     */
     public function qrp_update_link() {
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
@@ -76,6 +93,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Update email address
+     */
     public function qrp_update_email() {
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
@@ -88,6 +108,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Send email address
+     */
     public function qrp_send_email() {
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
@@ -102,6 +125,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Manage form conditions
+     */
     public function qrp_form_filters() {
         $this->generic_responder(__FUNCTION__, function (){
             if(empty($_REQUEST['param'])){
@@ -134,6 +160,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Manage form behavior response
+     */
     public function qrp_form_response(){
         $this->generic_responder(__FUNCTION__, function (){
             if(!empty($_REQUEST['param'])){
@@ -179,6 +208,9 @@ class QRPAjaxResponder
         });
     }
 
+    /**
+     * Resend response after completing the form
+     */
     public function resend_email_public(){
         if ( !wp_verify_nonce( $_REQUEST['nonce'], "qrp_eid_" . $_REQUEST['id_number']) && !empty($_REQUEST['id_number'])) {
             $response['status'] = "NONCE_ERROR";

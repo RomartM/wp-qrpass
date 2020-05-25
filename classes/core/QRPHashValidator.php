@@ -1,4 +1,9 @@
 <?php
+
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
+
 /**
  * QRPHashValidator
  *
@@ -6,11 +11,6 @@
  *
  * @since 2.0.0
  */
-
-if (! defined( 'ABSPATH' ) ){
-    exit;
-}
-
 class QRPHashValidator extends QRPCrypto
 {
     private $data_hash;
@@ -40,6 +40,11 @@ class QRPHashValidator extends QRPCrypto
         }
     }
 
+    /**
+     * Check if hash had reference id pattern
+     * @param $hash
+     * @return bool
+     */
     private function checkIfRefID($hash){
         preg_match('/R-\d+$/', $hash, $matches, PREG_OFFSET_CAPTURE);
         return !empty($matches);

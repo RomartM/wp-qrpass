@@ -1,4 +1,9 @@
-<?php $link_forms_data = get_option( WP_QRP_OPTION_PREFIX . "link_forms"); ?>
+<?php
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
+
+$link_forms_data = get_option( WP_QRP_OPTION_PREFIX . "link_forms"); ?>
 <label for="form-list">Select Form</label>
 <select class="form-list" id="form-list"><?php
     foreach ($link_forms_data as $item){

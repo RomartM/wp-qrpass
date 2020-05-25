@@ -1,4 +1,7 @@
 <?php
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
 
 function validateRequest($function_callback){
     if(!empty($_REQUEST['user-id'])){

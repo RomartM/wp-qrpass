@@ -1,5 +1,10 @@
 <?php
 
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
+
+
 add_filter('caldera_forms_ajax_return', function($out, $form){
     $form = Caldera_Forms_Forms::get_form( $form['ID'] );
 

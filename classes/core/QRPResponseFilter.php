@@ -4,12 +4,20 @@ if (! defined( 'ABSPATH' ) ){
     exit;
 }
 
+/**
+ * Class QRPResponseFilter
+ */
 class QRPResponseFilter
 {
     private $form;
     private $form_id;
     private $entry_id;
 
+    /**
+     * QRPResponseFilter constructor.
+     * @param $form_id
+     * @param $entry_id
+     */
     public function __construct($form_id, $entry_id)
     {
         $this->form = Caldera_Forms_Forms::get_form( $form_id );
@@ -17,6 +25,13 @@ class QRPResponseFilter
         $this->entry_id = $entry_id;
     }
 
+    /**
+     * Compares initial result by conditional type
+     * @param $relation
+     * @param $initial_result
+     * @param $score_value
+     * @return int
+     */
     private function conditional_relation($relation, $initial_result, $score_value){
         $conditional_result = $initial_result >= $score_value;
         switch ($relation){
@@ -41,8 +56,18 @@ class QRPResponseFilter
                 }
                 return 0;
         }
+        return 0;
     }
 
+    /**
+     * Convert conditions and compares array to string and vice versa
+     * @param $operator
+     * @param $value_config
+     * @param $incremental_hit_value
+     * @param $first_value
+     * @param $second_value
+     * @return int
+     */
     private function condition_converter($operator, $value_config, $incremental_hit_value, $first_value, $second_value){
 
         $tmp = null;
@@ -75,8 +100,19 @@ class QRPResponseFilter
             }
             return $hit_iterator;
         }
+        return 0;
     }
 
+    /**
+     * Manage item hit iterator results
+     * @param $operator
+     * @param $f_value
+     * @param $s_value
+     * @param $value_config
+     * @param $incremental_hit_value
+     * @param $hit_iterator
+     * @return null
+     */
     private function sub_condition_converter($operator, $f_value, $s_value, $value_config, $incremental_hit_value, $hit_iterator){
         if($this->equality_operator($operator, $f_value, $s_value)){
             if($value_config == 'sum'){
@@ -89,6 +125,13 @@ class QRPResponseFilter
         return null;
     }
 
+    /**
+     * Convert string base equality operator
+     * @param $operator
+     * @param string $first_value
+     * @param string $second_value
+     * @return bool|int
+     */
     private function equality_operator($operator, $first_value = "", $second_value = ""){
         switch ($operator){
             case '==':
@@ -106,6 +149,9 @@ class QRPResponseFilter
         }
     }
 
+    /**
+     * Process conditional settings and user entry
+     */
     public function process(){
         $parsed_data = '';
         $raw_data = get_option( WP_QRP_OPTION_PREFIX . "form_filters_config_" . $this->form_id );

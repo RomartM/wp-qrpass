@@ -1,4 +1,7 @@
 <?php
+if (! defined( 'ABSPATH' ) ){
+    exit;
+}
 
 $grouped_settings = array(
     array("slug"=>"Link Forms", "dir_path"=>"/templ/admin-form-links.php"),

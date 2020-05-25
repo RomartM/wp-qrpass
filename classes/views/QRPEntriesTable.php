@@ -21,6 +21,10 @@ class QRPEntriesTable extends WP_List_Table
     private $data_table;
     private static $instance;
 
+    /**
+     * QRPEntriesTable constructor.
+     * @param $form
+     */
     function __construct($form){
         parent::__construct( [
             'singular' => __( 'User Entry', 'qr-pass' ), //singular name of the listed records
@@ -35,19 +39,39 @@ class QRPEntriesTable extends WP_List_Table
         $this->data_table = new QRPDataTable();
     }
 
+    /**
+     * Check entry list if empty
+     * @return bool
+     */
     protected function verifyIfEmpty(){
         return empty($this->data['entries']);
     }
 
+    /**
+     * Get entry label from caldera entry viewer
+     * @param $slug_name
+     * @return mixed
+     */
     protected function getDataLabel($slug_name){
         $field_meta = Caldera_Forms_Field_Util::get_field_by_slug($slug_name, $this->form);
         return $field_meta['label'];
     }
 
+    /**
+     * Get entry label from caldera entry viewer
+     * @return array
+     */
     protected function getDataKeys(){
         return array_keys(array_values($this->data['entries'])[0]['data']);
     }
 
+    /**
+     * Format entry data for ease parsing
+     * @param $formatted
+     * @param $index
+     * @param $entry
+     * @return mixed
+     */
     protected function formatEntry($formatted, $index, $entry){
         $keys = $this->getDataKeys();
         foreach ($keys as $key){
@@ -58,11 +82,22 @@ class QRPEntriesTable extends WP_List_Table
         return $formatted;
     }
 
+    /**
+     * Put id number data tag
+     * @param $entry
+     * @return mixed
+     */
     protected function initialFormatEntry($entry){
         $entry['data']['id_number'] = str_replace('_', '', $entry['data']['id_number']);
         return $entry;
     }
 
+    /**
+     * Format caldera form data
+     * @param $entries
+     * @param string $search
+     * @return array|mixed
+     */
     protected function formatCFData($entries, $search=''){
 
         if(empty($entries)){
@@ -92,6 +127,12 @@ class QRPEntriesTable extends WP_List_Table
         return $formatted;
     }
 
+    /**
+     * Sort entry data results
+     * @param $a
+     * @param $b
+     * @return int|lt
+     */
     protected function usort_reorder( $a, $b ) {
         // If no sort, default to title
         $orderby = ( ! empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'id_number';
@@ -103,6 +144,12 @@ class QRPEntriesTable extends WP_List_Table
         return ( $order === 'asc' ) ? $result : -$result;
     }
 
+    /**
+     * Hide non applicable action buttons
+     * @param $action
+     * @param $status
+     * @return string
+     */
     protected function hideButton($action, $status){
         if(($action == 'approve_pass' && $status == 'approve') || ($action == 'revoke_pass' && $status == 'revoke') || ($action == 'revoke_pass' && $status == '')){
             return "style=\"display:none;\"";
@@ -110,6 +157,13 @@ class QRPEntriesTable extends WP_List_Table
         return  $status;
     }
 
+    /**
+     * Custom row actions
+     * @param $actions
+     * @param $id_number
+     * @param bool $always_visible
+     * @return string
+     */
     protected function custom_row_actions( $actions, $id_number, $always_visible = false) {
         $data_table = new QRPDataTable();
         $user_status = $data_table->getUserData($id_number)['status'];
@@ -133,6 +187,11 @@ class QRPEntriesTable extends WP_List_Table
         return $out;
     }
 
+    /**
+     * Set column id number
+     * @param $item
+     * @return string
+     */
     protected function column_id_number($item){
         $actions = array(
             'view_profile'      => sprintf('<a href="javascript:void(0);" class="qrp-action-trigger" data-nonce="%s" data-action="qrp_view" data-id="%s" data-cf-id="%s">View</a>', wp_create_nonce('qrp_view_' . $item['id_number']), $item['id_number'], $this->form_id),
@@ -186,7 +245,6 @@ class QRPEntriesTable extends WP_List_Table
      *
      * @return null|string
      */
-
     public static function get_record_count() {
         $data = QRPEntriesManager::get_cf_entries( self::$instance->form_id, 1, 9999999 );
         return count(empty($data['entries']) ? array() : $data['entries']);
@@ -343,11 +401,17 @@ class QRPEntriesTable extends WP_List_Table
             }
 
             if($counts["success"] !== 0){
-                $this->qrp_action_success_notice($message, $counts["success"] );
+                QRPUtility::instance()->admin_notice( array(
+                    'type' => 'success',
+                    'message' => 'Success ' . $message . ' ' . $counts . ' entry(s).'
+                ) );
             }
 
             if($counts["error"] !== 0){
-                $this->qrp_action_error_notice('error in '. $message, $counts["error"] );
+                QRPUtility::instance()->admin_notice( array(
+                    'type' => 'error',
+                    'message' => 'Encountered ' . 'error in '. $message . ' ' . $counts . ' entry(s).'
+                ) );
             }
         }
     }
@@ -372,22 +436,5 @@ class QRPEntriesTable extends WP_List_Table
         $this->generic_bulk_actions('bulk-send', array($qrp_entries, 'send'), 'notifying');
 
     }
-
-    protected function qrp_action_error_notice($type, $counts) {
-        ?>
-        <div class="error notice">
-            <p><?php _e( 'Encountered ' . $type . ' ' . $counts . ' entry(s).', 'qr-pass' ); ?></p>
-        </div>
-        <?php
-    }
-
-    protected function qrp_action_success_notice($type, $counts) {
-        ?>
-        <div class="updated notice">
-            <p><?php _e( 'Success ' . $type . ' ' . $counts . ' entry(s).', 'qr-pass' ); ?></p>
-        </div>
-        <?php
-    }
-
 
 }
