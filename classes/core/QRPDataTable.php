@@ -121,6 +121,7 @@ class QRPDataTable
             $sql = "CREATE TABLE $this->user_list_table_name (
                 id mediumint(9) NOT NULL AUTO_INCREMENT,
                 id_number tinytext NULL,
+                ref_id tinytext NULL,
                 qrp_group tinytext NULL,
                 qrp_type tinytext NULL,
                 first_name varchar(55) NULL,
@@ -144,6 +145,7 @@ class QRPDataTable
         $sql = "CREATE TABLE $this->user_list_table_name (
                 id mediumint(9) NOT NULL AUTO_INCREMENT,
                 id_number tinytext NULL,
+                ref_id tinytext NULL,
                 qrp_group tinytext NULL,
                 qrp_type tinytext NULL,
                 first_name text NULL,
@@ -264,6 +266,7 @@ class QRPDataTable
      * insertUser
      *
      * @param $id_number
+     * @param $ref_id
      * @param $group
      * @param $type
      * @param string $first_name
@@ -273,13 +276,14 @@ class QRPDataTable
      * @param string $status
      * @return array|string[]
      */
-    public function insertUser($id_number , $group, $type, $first_name='', $middle_name='', $last_name='', $name_ext='', $status=''){
+    public function insertUser($id_number, $ref_id, $group, $type, $first_name='', $middle_name='', $last_name='', $name_ext='', $status=''){
         global $wpdb;
 
         $action = $wpdb->insert(
             $this->user_list_table_name,
             array(
                 'id_number' => $id_number,
+                'ref_id' => $ref_id,
                 'qrp_group' => $group,
                 'qrp_type' => $type,
                 'first_name' => $first_name,
@@ -293,10 +297,28 @@ class QRPDataTable
         return $this->getActionStatus(__FUNCTION__, $action);
     }
 
+    /**
+     * Delete user entry
+     * @param $id_number
+     * @return array|string[]
+     */
     public function deleteUser($id_number){
         global $wpdb;
 
         $action = $wpdb->delete( $this->user_list_table_name, array( 'id_number' => $id_number ) );
+
+        return $this->getActionStatus(__FUNCTION__, $action);
+    }
+
+    public function updateUserLink($id_number, $ref_id){
+        global $wpdb;
+
+        $action = $wpdb-> update(
+            $this->user_list_table_name,
+            array( 'ref_id' => $ref_id ),
+            array( 'id_number' => ucwords($id_number) ),
+            array( '%s', '%s' )
+        );
 
         return $this->getActionStatus(__FUNCTION__, $action);
     }

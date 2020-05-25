@@ -3,7 +3,7 @@
 * Plugin Name: QR Pass
 * Plugin URI:
 * Description: Verifies the autheticity of generated QR Code for COVID-19 entry form
-* Version: 1.1
+* Version: 1.2
 * Author: RomartM
 * Author URI:
 * TextDomain: qr-pass
@@ -14,9 +14,9 @@ if (! defined( 'ABSPATH' ) ){
 }
 
 // Declare some global constants
-define( 'WP_QRP_VERSION', '1.1' );
-define( 'WP_QRP_TABLE_LOG_VERSION', '1.1' );
-define( 'WP_QRP_TABLE_USER_LIST_VERSION', '1.1' );
+define( 'WP_QRP_VERSION', '1.2' );
+define( 'WP_QRP_TABLE_LOG_VERSION', '1.2' );
+define( 'WP_QRP_TABLE_USER_LIST_VERSION', '1.3' );
 define( 'WP_QRP_ROOT', dirname( __FILE__ ) );
 define( 'WP_QRP_URL', plugins_url( '/', __FILE__ ) );
 define( 'WP_QRP_BASE_FILE', basename( dirname( __FILE__ ) ) . '/wp-qrpass.php' );

@@ -7,6 +7,7 @@ class QRPAjaxResponder
         add_action("wp_ajax_qrp_view", array( $this, "qrp_view" ));
         add_action("wp_ajax_qrp_approve", array( $this, "qrp_approve" ));
         add_action("wp_ajax_qrp_revoke", array( $this, "qrp_revoke" ));
+        add_action("wp_ajax_qrp_update_link", array( $this, "qrp_update_link" ));
         add_action("wp_ajax_qrp_update_email", array( $this, "qrp_update_email" ));
         add_action("wp_ajax_qrp_send_email", array( $this, "qrp_send_email" ));
         add_action("wp_ajax_qrp_form_filters", array( $this, "qrp_form_filters" ));
@@ -59,6 +60,18 @@ class QRPAjaxResponder
         $this->generic_responder(__FUNCTION__, function (){
             $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
             $response['message'] = $qrp_entries->revoke($_REQUEST['id_number']);
+            return $response;
+        });
+    }
+
+    public function qrp_update_link() {
+        $this->generic_responder(__FUNCTION__, function (){
+            $qrp_entries = new QRPEntriesManager($_REQUEST['cf_id']);
+            if(empty($_REQUEST['param'])){
+                $response['message'] = $qrp_entries->getUserLink($_REQUEST['id_number']);
+            }else{
+                $response['message'] = $qrp_entries->updateUserLink($_REQUEST['id_number'], $_REQUEST['param']);
+            }
             return $response;
         });
     }

@@ -53,6 +53,10 @@ jQuery(document).ready(function($){
         return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email_value)
     }
 
+    function validateRefID(link_value){
+        return /R-\d+$/.test(link_value)
+    }
+
     $(".qrp-action-trigger").click(function(eve){
 
         console.log(eve);
@@ -137,6 +141,48 @@ jQuery(document).ready(function($){
                     success_div.removeClass("hidden");
                 });
                 break;
+            case "qrp_update_link":
+                dlg.dialog('open');
+                dlg_title.text("");
+
+                generic_div.removeClass("hidden");
+                loading_div.removeClass("hidden");
+                $(loading_div.selector + " h2").text("Fetching current Reference ID...");
+
+                submitAction(eve, data_action, identifier, '', function (response) {
+                    var email = $("#qrp_reference_id");
+                    loading_div.addClass("hidden");
+                    if(response.message.status === 'success'){
+                        default_div.removeClass("hidden");
+                        email.val(response.message.content);
+                    }else{
+                        default_div.removeClass("hidden");
+                    }
+                });
+
+                $(default_div.selector + " .update_link_action ").click(function(){
+                    var link_value = $("#qrp_reference_id").val();
+                    if(validateRefID(link_value)){
+                        $(loading_div.selector + " h2").text("Updating Reference ID...");
+                        loading_div.removeClass("hidden");
+                        default_div.addClass("hidden");
+                        submitAction(eve, data_action, identifier, link_value, function (response) {
+                            loading_div.addClass("hidden");
+                            if(response.message.status === 'success'){
+                                success_div.removeClass("hidden");
+                                $(success_div.selector + " h2").text("Reference ID Updated");
+                            }else{
+                                success_div.removeClass("hidden");
+                                $(success_div.selector + " h2").text("Unable to Update Reference ID");
+                            }
+                            success_div.removeClass("hidden");
+                            $(default_div.selector + " .update_link_action").off();
+                        });
+                    }else {
+                        alert("Invalid Reference ID");
+                    }
+                });
+                break;
             case "qrp_update_email":
                 dlg.dialog('open');
                 dlg_title.text("");
@@ -172,7 +218,7 @@ jQuery(document).ready(function($){
                                 $(success_div.selector + " h2").text("Unable to Update Email Address");
                             }
                             success_div.removeClass("hidden");
-                            $(default_div.selector + " .send_email_action").off();
+                            $(default_div.selector + " .update_email_action").off();
                         });
                     }else {
                         alert("Invalid Email Address");

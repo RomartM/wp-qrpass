@@ -53,6 +53,20 @@ $entries_tab->build(function($group, $form_id){
             <h2>QR Pass Revoked</h2>
         </div>
     </div>
+    <div class="qrp_update_link qrp-center hidden">
+        <div class="default hidden">
+            <h2>Update Reference ID</h2>
+            <div class="link-wrapper">Reference ID: <input type="text" placeholder="R-XXXXXXXXXX" id="qrp_reference_id"/></div>
+            <button class="update_link_action button action">Update Reference ID</button>
+        </div>
+        <div class="loading hidden">
+            <h2>Updating Reference ID...</h2>
+            <div class="qrp-spinner"></div>
+        </div>
+        <div class="success hidden">
+            <h2>Reference ID Updated</h2>
+        </div>
+    </div>
     <div class="qrp_update_email qrp-center hidden">
         <div class="default hidden">
             <h2>Update Email</h2>

@@ -25,6 +25,14 @@ class QRPEntriesManager extends QRPDataTable
         $this->form_instance = Caldera_Forms_Forms::get_form( $this->form_id );
     }
 
+    /**
+     * Get caldera form entries modified version
+     * @param $form
+     * @param int $page
+     * @param int $perpage
+     * @param string $status
+     * @return array|void
+     */
     public static function get_cf_entries( $form, $page = 1, $perpage = 20, $status = 'active' ) {
 
         if ( is_string( $form ) ) {
@@ -215,6 +223,13 @@ class QRPEntriesManager extends QRPDataTable
 
     }
 
+    /**
+     * Verify action status
+     * @param $id_number
+     * @param $action
+     * @param $status
+     * @return |null
+     */
     private function veriyActionStatus($id_number, $action, $status){
 
         $form = $this->form_instance;
@@ -253,6 +268,11 @@ class QRPEntriesManager extends QRPDataTable
         return false;
     }
 
+    /**
+     * Check if value exists
+     * @param $field_meta
+     * @return string
+     */
     public function getFieldValueIfExist($field_meta){
         if(!empty($field_meta)){
             return $field_meta->get_value();
@@ -296,7 +316,7 @@ class QRPEntriesManager extends QRPDataTable
                 }
             }
 
-            $result = $this->insertUser($id_number , $group, '', $first_name, $middle_name, $last_name);
+            $result = $this->insertUser($id_number , '', $group, '', $first_name, $middle_name, $last_name);
 
             if($result['status'] == 'success'){
                 return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserStatus($id_number, __FUNCTION__));
@@ -310,7 +330,6 @@ class QRPEntriesManager extends QRPDataTable
 
     /**
      * Revoke QR Pass
-     *
      * @param $id_number
      * @return array|string[]
      */
@@ -318,6 +337,21 @@ class QRPEntriesManager extends QRPDataTable
         return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserStatus($id_number, __FUNCTION__));
     }
 
+    /**
+     * Set reference id
+     * @param $id_number
+     * @param $ref_id
+     * @return |null
+     */
+    public function link($id_number, $ref_id){
+        return $this->veriyActionStatus($id_number, __FUNCTION__, $this->updateUserLink($id_number, $ref_id));
+    }
+
+    /**
+     * Delete entry and related fields
+     * @param $id_number
+     * @return array|string[]
+     */
     public function delete($id_number){
         $data = $this->form_entries;
         $result = Caldera_Forms_Entry_Bulk::delete_entries(array($this->getEntryIDbyIDNumber($data, $id_number)));
@@ -331,6 +365,12 @@ class QRPEntriesManager extends QRPDataTable
             'status'   => 'error' );
     }
 
+    /**
+     * Generic email sender
+     * @param $id_number
+     * @param string $email_address
+     * @return string[]
+     */
     public function send($id_number, $email_address=""){
 
         if(empty($email_address)){
@@ -376,6 +416,14 @@ class QRPEntriesManager extends QRPDataTable
         }
     }
 
+    /**
+     * Admin email sender
+     * @param $id_number
+     * @param $email_address
+     * @param $message
+     * @param bool $is_attach_qr
+     * @return string[]
+     */
     public function adminSend($id_number, $email_address, $message, $is_attach_qr=false){
         $results = $this->coreSend($id_number, $email_address, $message, $is_attach_qr);
         if($results){
@@ -389,6 +437,14 @@ class QRPEntriesManager extends QRPDataTable
         }
     }
 
+    /**
+     * Core email sender
+     * @param $id_number
+     * @param $email_address
+     * @param $message
+     * @param bool $is_attach_qr
+     * @return bool
+     */
     public function coreSend($id_number, $email_address, $message, $is_attach_qr=false){
         $attachments = array();
         $form = $this->form_instance;
@@ -406,6 +462,12 @@ class QRPEntriesManager extends QRPDataTable
         return wp_mail($email_address, $subject , $message, $headers, $attachments);
     }
 
+    /**
+     * Get user entry fields
+     * @param $id_number
+     * @param bool $include_media
+     * @return array
+     */
     public function getUserEntryFields($id_number, $include_media=true){
         $filter_slugs = 'start_screening qrpass proceed next next2 submit';
         $formatted_fields = array();
@@ -440,6 +502,11 @@ class QRPEntriesManager extends QRPDataTable
         return $formatted_fields;
     }
 
+    /**
+     * Get email address
+     * @param $id_number
+     * @return array
+     */
     public function getEmailAddress($id_number){
         $form = $this->form_instance;
         $data = $this->form_entries;
@@ -454,6 +521,19 @@ class QRPEntriesManager extends QRPDataTable
 
         return array(
             'content'  => $email_address,
+            'method'   => __FUNCTION__,
+            'status'   => 'success' );
+    }
+
+
+    public function getUserLink($id_number){
+
+        $ref_id = $this->getUserData($id_number)['ref_id'];
+
+        $this->legacyLogger(__FUNCTION__);
+
+        return array(
+            'content'  => $ref_id,
             'method'   => __FUNCTION__,
             'status'   => 'success' );
     }
